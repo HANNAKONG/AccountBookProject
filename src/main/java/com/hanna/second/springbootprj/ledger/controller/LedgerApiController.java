@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/ledgers")
 public class LedgerApiController {
     private final LedgerService ledgerService;
 
@@ -20,7 +21,7 @@ public class LedgerApiController {
      *  - 필터 적용: 기간별, 거래유형별, 카테고리별, 자산(결재수단)별
      *  - 키워드 조회: 내역명, 메모
      **********************************/
-    @GetMapping("/ledger")
+    @GetMapping()
     public List<LedgerResponseDto> getLedgerList(@RequestBody LedgerRequestDto requestDto) {
         return ledgerService.getLedgerList(requestDto);
     }
@@ -28,7 +29,7 @@ public class LedgerApiController {
     /**********************************
      *  2. 수입/지출내역 단건 조회
      **********************************/
-    @GetMapping("/ledger/{id}")
+    @GetMapping("/{id}")
     public LedgerResponseDto getLedger(@PathVariable Long id){
         return ledgerService.getLedger(id);
     }
@@ -36,7 +37,7 @@ public class LedgerApiController {
     /**********************************
      *  3. 수입/지출내역 등록
      **********************************/
-    @PostMapping("/ledger")
+    @PostMapping()
     public void saveLedger(@RequestBody LedgerRequestDto requestDto){
         ledgerService.saveLedger(requestDto);
     }
@@ -44,7 +45,7 @@ public class LedgerApiController {
     /**********************************
      *  4. 수입/지출내역 수정
      **********************************/
-    @PatchMapping("/ledger/{id}")
+    @PatchMapping("/{id}")
     public void updateLedger(@PathVariable Long id, @RequestBody LedgerRequestDto requestDto){
         ledgerService.updateLedger(id, requestDto);
     }
@@ -52,7 +53,7 @@ public class LedgerApiController {
     /**********************************
      *  5. 수입/지출내역 삭제
      **********************************/
-    @DeleteMapping("/ledger/{id}")
+    @DeleteMapping("/{id}")
     public void deleteLedger(@PathVariable Long id){
         ledgerService.deleteLedger(id);
     }
