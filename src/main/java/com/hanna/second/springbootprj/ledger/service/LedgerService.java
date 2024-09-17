@@ -1,8 +1,7 @@
 package com.hanna.second.springbootprj.ledger.service;
 
 import com.hanna.second.springbootprj.ledger.domain.Ledger;
-import com.hanna.second.springbootprj.ledger.domain.LedgerRepository;
-import com.hanna.second.springbootprj.ledger.domain.LedgerSpecification;
+import com.hanna.second.springbootprj.ledger.domain.LedgerRepositoryImpl;
 import com.hanna.second.springbootprj.ledger.dto.LedgerRequestDto;
 import com.hanna.second.springbootprj.ledger.dto.LedgerResponseDto;
 import com.hanna.second.springbootprj.statistics.domain.Statistics;
@@ -22,10 +21,10 @@ public class LedgerService {
 //        this.budgetClient = budgetClient;
 //    }
 
-    private final LedgerRepository ledgerRepository;
+    private final LedgerRepositoryImpl ledgerRepository;
     private final StatisticsService statisticsService;
 
-    public LedgerService(final LedgerRepository ledgerRepository, StatisticsService statisticsService) {
+    public LedgerService(final LedgerRepositoryImpl ledgerRepository, StatisticsService statisticsService) {
         this.ledgerRepository = ledgerRepository;
         this.statisticsService = statisticsService;
     }
@@ -38,7 +37,7 @@ public class LedgerService {
     @Transactional(readOnly = true)
     public List<LedgerResponseDto> getLedgerList(final LedgerRequestDto requestDto) {
 
-        List<Ledger> entityLedgerList = ledgerRepository.findAll(LedgerSpecification.byFilters(requestDto));
+        List<Ledger> entityLedgerList = ledgerRepository.findAllByFilter(requestDto);
 
         return entityLedgerList.stream()
                 .map(LedgerResponseDto::new)
@@ -65,7 +64,7 @@ public class LedgerService {
         ledgerRepository.save(entityDto);
 
         final Statistics statisticsDto = new Statistics();
-        statisticsService.saveStatistics(statisticsDto.toStatistics(entityDto));
+        //statisticsService.saveStatistics(statisticsDto.toStatistics(entityDto));
     }
 
     /**********************************
@@ -87,7 +86,7 @@ public class LedgerService {
                     );
 
         final Statistics statisticsDto = new Statistics();
-        statisticsService.updateStatistics(statisticsDto.toStatistics(entity));
+        //statisticsService.updateStatistics(statisticsDto.toStatistics(entity));
 
     }
 
@@ -103,6 +102,6 @@ public class LedgerService {
         ledgerRepository.delete(entity);
 
         final Statistics statisticsDto = new Statistics();
-        statisticsService.deleteStatistics(statisticsDto.toStatistics(entity).getId());
+        //statisticsService.deleteStatistics(statisticsDto.toStatistics(entity).getId());
     }
 }
