@@ -1,10 +1,5 @@
 package com.hanna.second.springbootprj.statistics.domain;
 
-import com.hanna.second.springbootprj.ledger.domain.Ledger;
-import com.hanna.second.springbootprj.support.enums.AssetType;
-import com.hanna.second.springbootprj.support.enums.CategoryType;
-import com.hanna.second.springbootprj.support.enums.TransactionType;
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 
@@ -20,24 +15,13 @@ public class Statistics {
     @Column(nullable = false)
     private String baseDate;
 
-    /** 거래유형 */
-    @Enumerated(EnumType.STRING)
+    /** 일지출금액 */
     @Column(nullable = false)
-    private TransactionType transactionType;
+    private BigDecimal dayExpenseAmount;
 
-    /** 자산유형 */
-    @Enumerated(EnumType.STRING)
+    /** 일수입금액 */
     @Column(nullable = false)
-    private AssetType assetType;
-
-    /** 카테고리 */
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private CategoryType categoryType;
-
-    /** 금액 */
-    @Column(nullable = false)
-    private BigDecimal amount;
+    private BigDecimal dayIncomeAmount;
 
     /** Users Id */
     private Long usersId;
@@ -48,49 +32,44 @@ public class Statistics {
     public Statistics(){
     }
 
-    public Statistics(Long id, String baseDate, TransactionType transactionType, AssetType assetType, CategoryType categoryType, BigDecimal amount, Long usersId) {
+    public Statistics(Long id, String baseDate, BigDecimal dayExpenseAmount, BigDecimal dayIncomeAmount, Long usersId) {
         this.id = id;
         this.baseDate = baseDate;
-        this.transactionType = transactionType;
-        this.assetType = assetType;
-        this.categoryType = categoryType;
-        this.amount = amount;
+        this.dayExpenseAmount = dayExpenseAmount;
+        this.dayIncomeAmount = dayIncomeAmount;
         this.usersId = usersId;
     }
 
     /**********************************
      *  update method
      **********************************/
-    public void update(String baseDate, TransactionType transactionType, AssetType assetType, CategoryType categoryType, BigDecimal amount){
+    public void update(String baseDate,
+                       BigDecimal dayExpenseAmount,
+                       BigDecimal dayIncomeAmount){
         if(baseDate != null){
             this.baseDate = baseDate;
         }
-        if(transactionType != null){
-            this.transactionType = transactionType;
+        if(dayExpenseAmount != null){
+            this.dayExpenseAmount = dayExpenseAmount;
         }
-        if(assetType != null){
-            this.assetType = assetType;
+        if(dayIncomeAmount != null){
+            this.dayIncomeAmount = dayIncomeAmount;
         }
-        if(categoryType != null){
-            this.categoryType = categoryType;
-        }
-        if(amount != null){
-            this.amount = amount;
-        }
+
     }
 
     /**********************************
      *  toStatistics
      **********************************/
-    public Statistics toStatistics(Ledger ledger){
-        return Statistics.builder()
-                .baseDate(ledger.getBaseDate())
-                .transactionType(ledger.getTransactionType())
-                .assetType(ledger.getAssetType())
-                .categoryType(ledger.getCategoryType())
-                .amount(ledger.getAmount())
-                .build();
-    }
+//    public Statistics toStatistics(Ledger ledger){
+//        return Statistics.builder()
+//                .baseDate(ledger.getBaseDate())
+//                .transactionType(ledger.getTransactionType())
+//                .assetType(ledger.getAssetType())
+//                .categoryType(ledger.getCategoryType())
+//                .amount(ledger.getAmount())
+//                .build();
+//    }
 
     /**********************************
      *  getter
@@ -103,25 +82,18 @@ public class Statistics {
         return baseDate;
     }
 
-    public TransactionType getTransactionType() {
-        return transactionType;
+    public BigDecimal getDayExpenseAmount() {
+        return dayExpenseAmount;
     }
 
-    public AssetType getAssetType() {
-        return assetType;
-    }
-
-    public CategoryType getCategoryType() {
-        return categoryType;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
+    public BigDecimal getDayIncomeAmount() {
+        return dayIncomeAmount;
     }
 
     public Long getUsersId() {
         return usersId;
     }
+
     /**********************************
      *  builder
      **********************************/
@@ -130,14 +102,10 @@ public class Statistics {
         private Long id;
         /** 기준날짜 */
         private String baseDate;
-        /** 거래유형 */
-        private TransactionType transactionType;
-        /** 자산유형 */
-        private AssetType assetType;
-        /** 카테고리 */
-        private CategoryType categoryType;
-        /** 금액 */
-        private BigDecimal amount;
+        /** 일지출금액 */
+        private BigDecimal dayExpenseAmount;
+        /** 일수입금액 */
+        private BigDecimal dayIncomeAmount;
         /** Users Id */
         private Long usersId;
 
@@ -151,24 +119,13 @@ public class Statistics {
             return this;
         }
 
-
-        public Builder transactionType(TransactionType transactionType) {
-            this.transactionType = transactionType;
+        public Builder dayExpenseAmount(BigDecimal dayExpenseAmount) {
+            this.dayExpenseAmount = dayExpenseAmount;
             return this;
         }
 
-        public Builder assetType(AssetType assetType) {
-            this.assetType = assetType;
-            return this;
-        }
-
-        public Builder categoryType(CategoryType categoryType) {
-            this.categoryType = categoryType;
-            return this;
-        }
-
-        public Builder amount(BigDecimal amount) {
-            this.amount = amount;
+        public Builder dayIncomeAmount(BigDecimal dayIncomeAmount) {
+            this.dayIncomeAmount = dayIncomeAmount;
             return this;
         }
 
@@ -178,7 +135,7 @@ public class Statistics {
         }
 
         public Statistics build() {
-            return new Statistics(id, baseDate, transactionType, assetType, categoryType, amount, usersId);
+            return new Statistics(id, baseDate, dayExpenseAmount, dayIncomeAmount, usersId);
         }
 
     }

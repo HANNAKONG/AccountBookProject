@@ -1,10 +1,7 @@
 package com.hanna.second.springbootprj.statistics.dto;
 
-import com.hanna.second.springbootprj.ledger.domain.Ledger;
 import com.hanna.second.springbootprj.statistics.domain.Statistics;
-import com.hanna.second.springbootprj.support.enums.AssetType;
-import com.hanna.second.springbootprj.support.enums.CategoryType;
-import com.hanna.second.springbootprj.support.enums.TransactionType;
+import com.hanna.second.springbootprj.support.enums.PeriodType;
 
 import java.math.BigDecimal;
 
@@ -12,22 +9,14 @@ public class StatisticsRequestDto {
 
     /** 아이디 */
     private Long id;
-
     /** 기준날짜 */
     private String baseDate;
-
-    /** 거래유형 */
-    private TransactionType transactionType;
-
-    /** 자산유형 */
-    private AssetType assetType;
-
-    /** 카테고리 */
-    private CategoryType categoryType;
-
-    /** 금액 */
-    private BigDecimal amount;
-
+    /** 일별주별월별구분 */
+    private PeriodType periodType;
+    /** 일지출금액 */
+    private BigDecimal dayExpenseAmount;
+    /** 일수입금액 */
+    private BigDecimal dayIncomeAmount;
     /** Users Id */
     private Long usersId;
 
@@ -36,13 +25,13 @@ public class StatisticsRequestDto {
      **********************************/
     public StatisticsRequestDto() {
     }
-    public StatisticsRequestDto(Long id, String baseDate, TransactionType transactionType, AssetType assetType, CategoryType categoryType, BigDecimal amount, Long usersId) {
+
+    public StatisticsRequestDto(Long id, String baseDate, PeriodType periodType, BigDecimal dayExpenseAmount, BigDecimal dayIncomeAmount, Long usersId) {
         this.id = id;
         this.baseDate = baseDate;
-        this.transactionType = transactionType;
-        this.assetType = assetType;
-        this.categoryType = categoryType;
-        this.amount = amount;
+        this.periodType = periodType;
+        this.dayExpenseAmount = dayExpenseAmount;
+        this.dayIncomeAmount = dayIncomeAmount;
         this.usersId = usersId;
     }
 
@@ -52,11 +41,8 @@ public class StatisticsRequestDto {
     public Statistics toEntity(){
         return Statistics.builder()
                 .baseDate(baseDate)
-                .transactionType(transactionType)
-                .assetType(assetType)
-                .categoryType(categoryType)
-                .amount(amount)
-                .usersId(usersId)
+                .dayExpenseAmount(dayExpenseAmount)
+                .dayIncomeAmount(dayIncomeAmount)
                 .build();
     }
 
@@ -71,20 +57,16 @@ public class StatisticsRequestDto {
         return baseDate;
     }
 
-    public TransactionType getTransactionType() {
-        return transactionType;
+    public PeriodType getPeriodType() {
+        return periodType;
     }
 
-    public AssetType getAssetType() {
-        return assetType;
+    public BigDecimal getDayExpenseAmount() {
+        return dayExpenseAmount;
     }
 
-    public CategoryType getCategoryType() {
-        return categoryType;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
+    public BigDecimal getDayIncomeAmount() {
+        return dayIncomeAmount;
     }
 
     public Long getUsersId() {
@@ -99,14 +81,12 @@ public class StatisticsRequestDto {
         private Long id;
         /** 기준날짜 */
         private String baseDate;
-        /** 거래유형 */
-        private TransactionType transactionType;
-        /** 자산유형 */
-        private AssetType assetType;
-        /** 카테고리 */
-        private CategoryType categoryType;
-        /** 금액 */
-        private BigDecimal amount;
+        /** 일별주별월별구분 */
+        private PeriodType periodType;
+        /** 일지출금액 */
+        private BigDecimal dayExpenseAmount;
+        /** 일수입금액 */
+        private BigDecimal dayIncomeAmount;
         /** Users Id */
         private Long usersId;
 
@@ -120,24 +100,18 @@ public class StatisticsRequestDto {
             return this;
         }
 
-
-        public Builder transactionType(TransactionType transactionType) {
-            this.transactionType = transactionType;
+        public Builder periodType(PeriodType periodType) {
+            this.periodType = periodType;
             return this;
         }
 
-        public Builder assetType(AssetType assetType) {
-            this.assetType = assetType;
+        public Builder dayExpenseAmount(BigDecimal dayExpenseAmount) {
+            this.dayExpenseAmount = dayExpenseAmount;
             return this;
         }
 
-        public Builder categoryType(CategoryType categoryType) {
-            this.categoryType = categoryType;
-            return this;
-        }
-
-        public Builder amount(BigDecimal amount) {
-            this.amount = amount;
+        public Builder dayIncomeAmount(BigDecimal dayIncomeAmount) {
+            this.dayIncomeAmount = dayIncomeAmount;
             return this;
         }
 
@@ -147,7 +121,7 @@ public class StatisticsRequestDto {
         }
 
         public StatisticsRequestDto build() {
-            return new StatisticsRequestDto(id, baseDate, transactionType, assetType, categoryType, amount, usersId);
+            return new StatisticsRequestDto(id, baseDate, periodType, dayExpenseAmount, dayIncomeAmount, usersId);
         }
 
     }

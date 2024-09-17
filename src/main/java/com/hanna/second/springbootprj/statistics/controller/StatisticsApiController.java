@@ -1,16 +1,16 @@
 package com.hanna.second.springbootprj.statistics.controller;
 
-import com.hanna.second.springbootprj.ledger.dto.LedgerRequestDto;
-import com.hanna.second.springbootprj.ledger.dto.LedgerResponseDto;
-import com.hanna.second.springbootprj.ledger.service.LedgerService;
 import com.hanna.second.springbootprj.statistics.dto.StatisticsRequestDto;
 import com.hanna.second.springbootprj.statistics.dto.StatisticsResponseDto;
 import com.hanna.second.springbootprj.statistics.service.StatisticsService;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import com.hanna.second.springbootprj.support.enums.CategoryType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/statistics")
 public class StatisticsApiController {
     private final StatisticsService statisticsService;
 
@@ -19,27 +19,35 @@ public class StatisticsApiController {
     }
 
     /**********************************
-     *  1. 통계 조회: 지출금액
+     *  1-1. 통계 조회: 기간별 지출금액
      **********************************/
-    @GetMapping("/statistics/expense")
-    public StatisticsResponseDto getTotalExpense(@RequestBody StatisticsRequestDto requestDto){
-        return statisticsService.getTotalExpense(requestDto);
+    @GetMapping("/expensebyperiod")
+    public StatisticsResponseDto getExpenseByPeriod(@RequestBody StatisticsRequestDto requestDto){
+        return statisticsService.getExpenseByPeriod(requestDto);
+    }
+
+    /**********************************
+     *  1-2. 통계 조회: 카테고리별 지출금액
+     **********************************/
+    @GetMapping("/expensebycategory")
+    public StatisticsResponseDto getExpenseByCategory(@RequestBody StatisticsRequestDto requestDto, CategoryType categoryType){
+        return statisticsService.getExpenseByCategory(requestDto, categoryType);
     }
 
     /**********************************
      *  2. 통계 조회: 수입금액
      **********************************/
-    @GetMapping("/statistics/income")
-    public StatisticsResponseDto getTotalIncome(@RequestBody StatisticsRequestDto requestDto){
-        return statisticsService.getTotalIncome(requestDto);
-    }
+//    @GetMapping("/income")
+//    public StatisticsResponseDto getTotalIncome(@RequestBody StatisticsRequestDto requestDto){
+//        return statisticsService.getTotalIncome(requestDto);
+//    }
 
     /**********************************
      *  2. 통계 조회: 지출금액 - 수입금액
      **********************************/
-    @GetMapping("/statistics/total")
-    public StatisticsResponseDto getIncomeMinusExpense(@RequestBody StatisticsRequestDto requestDto){
-        return statisticsService.getIncomeMinusExpense(requestDto);
-    }
+//    @GetMapping("/total")
+//    public StatisticsResponseDto getIncomeMinusExpense(@RequestBody StatisticsRequestDto requestDto){
+//        return statisticsService.getIncomeMinusExpense(requestDto);
+//    }
 
 }
