@@ -1,10 +1,9 @@
 package com.hanna.second.springbootprj.ledger.domain;
 
-import com.hanna.second.springbootprj.ledger.dto.LedgerRequestDto;
+import com.hanna.second.springbootprj.support.BaseTime;
 import com.hanna.second.springbootprj.support.enums.AssetType;
 import com.hanna.second.springbootprj.support.enums.CategoryType;
 import com.hanna.second.springbootprj.support.enums.TransactionType;
-import com.hanna.second.springbootprj.support.BaseTime;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
