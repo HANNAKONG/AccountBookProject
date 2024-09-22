@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +51,17 @@ public class LedgerRepositoryImpl implements LedgerRepository {
                         containsDescriptionOrMemo(requestDto.getDescription(), requestDto.getMemo())
                 )
                 .fetch();
+    }
+
+    @Override
+    public BigDecimal sumAmountByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType) {
+        return jpaQueryFactory
+                .select(ledger.amount.sum())
+                .from(ledger)
+                .where(ledger.baseDate.eq(baseDate)
+                        .and(ledger.usersId.eq(usersId))
+                        .and(ledger.transactionType.eq(transactionType)))
+                .fetchOne();
     }
 
     // 기간별 필터
