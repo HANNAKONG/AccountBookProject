@@ -32,8 +32,7 @@ public class Statistics {
     public Statistics(){
     }
 
-    public Statistics(Long id, String baseDate, BigDecimal dayExpenseAmount, BigDecimal dayIncomeAmount, Long usersId) {
-        this.id = id;
+    public Statistics(String baseDate, BigDecimal dayExpenseAmount, BigDecimal dayIncomeAmount, Long usersId) {
         this.baseDate = baseDate;
         this.dayExpenseAmount = dayExpenseAmount;
         this.dayIncomeAmount = dayIncomeAmount;
@@ -56,6 +55,22 @@ public class Statistics {
             this.dayIncomeAmount = dayIncomeAmount;
         }
 
+    }
+
+    /**********************************
+     *  addAmount, subtractAmount
+     **********************************/
+    public void addExpense(BigDecimal amount) {
+        this.dayExpenseAmount = this.dayExpenseAmount.add(amount);
+    }
+    public void addIncome(BigDecimal amount) {
+        this.dayIncomeAmount = this.dayIncomeAmount.add(amount);
+    }
+    public void subtractExpense(BigDecimal amount) {
+        this.dayExpenseAmount = this.dayExpenseAmount.subtract(amount);
+    }
+    public void subtractIncome(BigDecimal amount) {
+        this.dayIncomeAmount = this.dayIncomeAmount.subtract(amount);
     }
 
     /**********************************
@@ -135,7 +150,7 @@ public class Statistics {
         }
 
         public Statistics build() {
-            return new Statistics(id, baseDate, dayExpenseAmount, dayIncomeAmount, usersId);
+            return new Statistics(baseDate, dayExpenseAmount, dayIncomeAmount, usersId);
         }
 
     }
