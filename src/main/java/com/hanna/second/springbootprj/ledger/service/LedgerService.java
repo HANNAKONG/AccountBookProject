@@ -23,13 +23,11 @@ public class LedgerService {
 //    }
 
     private final LedgerRepositoryImpl ledgerRepository;
-    private final StatisticsService statisticsService;
     private final LedgerEvent ledgerEvent;
     private final ApplicationEventPublisher eventPublisher;
 
-    public LedgerService(final LedgerRepositoryImpl ledgerRepository, final StatisticsService statisticsService, final LedgerEvent ledgerEvent, ApplicationEventPublisher eventPublisher) {
+    public LedgerService(final LedgerRepositoryImpl ledgerRepository, final LedgerEvent ledgerEvent, ApplicationEventPublisher eventPublisher) {
         this.ledgerRepository = ledgerRepository;
-        this.statisticsService = statisticsService;
         this.ledgerEvent = ledgerEvent;
         this.eventPublisher = eventPublisher;
     }
