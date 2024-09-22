@@ -10,6 +10,7 @@ public interface StatisticsRepository {
     void delete(Statistics statistics);
     Statistics save(Statistics statistics);
     Optional<Statistics> findById(Long Id);
+    Optional<Statistics> findByBaseDateAndUsersId(String baseDate, Long usersId);
     Optional<BigDecimal> findExpenseAmountByFilter(StatisticsRequestDto statisticsRequestDto);
     Optional<BigDecimal> findExpenseAmountByCategoryType(StatisticsRequestDto statisticsRequestDto, CategoryType categoryType);
     //Optional<BigDecimal> findIncomeAmountByFilter(StatisticsRequestDto statisticsRequestDto);

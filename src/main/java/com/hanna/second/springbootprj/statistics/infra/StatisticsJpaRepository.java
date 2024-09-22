@@ -14,4 +14,7 @@ public interface StatisticsJpaRepository extends JpaRepository<Statistics, Long>
 
     @Override
     Optional<Statistics> findById(Long Id);
+
+    Optional<Statistics> findByBaseDateAndUsersId(String baseDate, Long usersId);
 }
+

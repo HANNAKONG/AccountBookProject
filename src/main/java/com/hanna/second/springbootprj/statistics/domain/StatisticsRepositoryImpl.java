@@ -124,4 +124,9 @@ public class StatisticsRepositoryImpl implements StatisticsRepository {
     public Optional<Statistics> findById(Long Id) {
         return statisticsJpaRepository.findById(Id);
     }
+
+    @Override
+    public Optional<Statistics> findByBaseDateAndUsersId(String baseDate,Long usersId) {
+        return statisticsJpaRepository.findByBaseDateAndUsersId(baseDate, usersId);
+    }
 }
