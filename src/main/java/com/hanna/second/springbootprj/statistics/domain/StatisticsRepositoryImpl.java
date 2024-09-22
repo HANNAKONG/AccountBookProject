@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Repository
@@ -92,19 +93,26 @@ public class StatisticsRepositoryImpl implements StatisticsRepository {
 
     // 기간별 필터
     private BooleanExpression dateFilterByPeriodType(PeriodType periodType, String baseDate) {
-        LocalDate date = LocalDate.parse(baseDate);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate date = LocalDate.parse(baseDate, formatter);
 
         switch (periodType) {
             case DAILY:
-                return statistics.baseDate.eq(date.toString());
+                return statistics.baseDate.eq(date.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
             case WEEKLY:
                 LocalDate startOfWeek = date.with(DayOfWeek.MONDAY); // 주의 시작일 (월요일)
                 LocalDate endOfWeek = date.with(DayOfWeek.SUNDAY);   // 주의 종료일 (일요일)
-                return statistics.baseDate.between(startOfWeek.toString(), endOfWeek.toString());
+                return statistics.baseDate.between(
+                        startOfWeek.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                        endOfWeek.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                );
             case MONTHLY:
                 LocalDate startOfMonth = date.withDayOfMonth(1);   // 달의 시작일
                 LocalDate endOfMonth = date.withDayOfMonth(date.lengthOfMonth()); // 달의 마지막 날
-                return statistics.baseDate.between(startOfMonth.toString(), endOfMonth.toString());
+                return statistics.baseDate.between(
+                        startOfMonth.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                        endOfMonth.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                );
             default:
                 throw new IllegalArgumentException("Unsupported period type: " + periodType);
         }
