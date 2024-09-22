@@ -4,8 +4,9 @@ import com.hanna.second.springbootprj.ledger.domain.Ledger;
 import com.hanna.second.springbootprj.ledger.domain.LedgerRepositoryImpl;
 import com.hanna.second.springbootprj.ledger.dto.LedgerRequestDto;
 import com.hanna.second.springbootprj.ledger.dto.LedgerResponseDto;
-import com.hanna.second.springbootprj.statistics.domain.Statistics;
+import com.hanna.second.springbootprj.ledger.event.LedgerEvent;
 import com.hanna.second.springbootprj.statistics.service.StatisticsService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +24,14 @@ public class LedgerService {
 
     private final LedgerRepositoryImpl ledgerRepository;
     private final StatisticsService statisticsService;
+    private final LedgerEvent ledgerEvent;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public LedgerService(final LedgerRepositoryImpl ledgerRepository, StatisticsService statisticsService) {
+    public LedgerService(final LedgerRepositoryImpl ledgerRepository, final StatisticsService statisticsService, final LedgerEvent ledgerEvent, ApplicationEventPublisher eventPublisher) {
         this.ledgerRepository = ledgerRepository;
         this.statisticsService = statisticsService;
+        this.ledgerEvent = ledgerEvent;
+        this.eventPublisher = eventPublisher;
     }
 
     /**********************************
@@ -60,11 +65,10 @@ public class LedgerService {
      **********************************/
     @Transactional
     public void saveLedger(final LedgerRequestDto requestDto){
-        final Ledger entityDto = requestDto.toEntity();
-        ledgerRepository.save(entityDto);
+        final Ledger entity = requestDto.toEntity();
+        ledgerRepository.save(entity);
 
-        final Statistics statisticsDto = new Statistics();
-        //statisticsService.saveStatistics(statisticsDto.toStatistics(entityDto));
+        eventPublisher.publishEvent(ledgerEvent.ledgerSavedEvent(this, entity.getId()));
     }
 
     /**********************************
@@ -85,9 +89,7 @@ public class LedgerService {
                         requestDto.getMemo()
                     );
 
-        final Statistics statisticsDto = new Statistics();
-        //statisticsService.updateStatistics(statisticsDto.toStatistics(entity));
-
+        eventPublisher.publishEvent(ledgerEvent.ledgerUpdatedEvent(this, entity.getId()));
     }
 
     /**********************************
@@ -99,9 +101,8 @@ public class LedgerService {
                 () -> new IllegalArgumentException("해당 내역이 없습니다.")
         );
 
-        ledgerRepository.delete(entity);
+        eventPublisher.publishEvent(ledgerEvent.ledgerDeletedEvent(this, entity));
 
-        final Statistics statisticsDto = new Statistics();
-        //statisticsService.deleteStatistics(statisticsDto.toStatistics(entity).getId());
+        ledgerRepository.delete(entity);
     }
 }
