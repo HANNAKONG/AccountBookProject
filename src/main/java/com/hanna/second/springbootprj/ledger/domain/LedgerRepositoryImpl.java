@@ -1,73 +1,169 @@
 package com.hanna.second.springbootprj.ledger.domain;
 
 import com.hanna.second.springbootprj.ledger.dto.LedgerRequestDto;
-import com.hanna.second.springbootprj.ledger.infra.LedgerJpaRepository;
+import com.hanna.second.springbootprj.support.Money;
 import com.hanna.second.springbootprj.support.enums.AssetType;
 import com.hanna.second.springbootprj.support.enums.CategoryType;
+import com.hanna.second.springbootprj.support.enums.PeriodType;
 import com.hanna.second.springbootprj.support.enums.TransactionType;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
-public class LedgerRepositoryImpl implements LedgerRepository {
+public class LedgerRepositoryImpl implements LedgerRepositoryCustom {
 
-    private final LedgerJpaRepository ledgerJpaRepository;
     private final JPAQueryFactory jpaQueryFactory;
     private final QLedger ledger = QLedger.ledger;
 
-    public LedgerRepositoryImpl(LedgerJpaRepository ledgerJpaRepository, JPAQueryFactory jpaQueryFactory) {
-        this.ledgerJpaRepository = ledgerJpaRepository;
+    public LedgerRepositoryImpl(JPAQueryFactory jpaQueryFactory) {
         this.jpaQueryFactory = jpaQueryFactory;
     }
 
     @Override
-    public Optional<Ledger> findById(Long Id) {
-        return ledgerJpaRepository.findById(Id);
-    }
-
-    @Override
-    public Ledger save(Ledger ledger) {
-        return ledgerJpaRepository.save(ledger);
-    }
-
-    @Override
-    public void delete(Ledger ledger) {
-        ledgerJpaRepository.delete(ledger);
-    }
-
-    @Override
-    public List<Ledger> findAllByFilter(LedgerRequestDto requestDto) {
-        return jpaQueryFactory.selectFrom(ledger)
+    public Page<Ledger> findCustomCriteria(LedgerRequestDto requestDto, Pageable pageable) {
+        // Ledger 쿼리 실행
+        List<Ledger> content = jpaQueryFactory.selectFrom(ledger)
                 .where(
-                        dateBetween(requestDto.getStartDate(), requestDto.getEndDate()),
-                        equalsTransactionType(requestDto.getTransactionType()),
-                        equalsCategoryType(requestDto.getCategoryType()),
-                        equalsAssetType(requestDto.getAssetType()),
-                        containsDescriptionOrMemo(requestDto.getDescription(), requestDto.getMemo())
+                        //dateBetween(startDate, endDate)
+                        //equalsTransactionType(requestDto.getTransactionType()),
+                        //equalsCategoryType(requestDto.getCategoryType()),
+                        //equalsAssetType(requestDto.getAssetType()),
+                        //containsDescriptionOrMemo(requestDto.getDescription(), requestDto.getMemo())
                 )
-                .fetch();
+                .orderBy(getSortOrder(pageable.getSort()))  // 정렬 처리
+                .offset(pageable.getOffset())  // 페이징 시작 위치
+                .limit(pageable.getPageSize())  // 페이지 크기
+                .fetch();  // 결과를 가져옴
+
+        // 전체 데이터 수를 가져오는 카운트 쿼리
+        JPAQuery<Long> countQuery = jpaQueryFactory
+                .select(ledger.count())
+                .from(ledger)
+                .where(
+                        //dateBetween(startDate, endDate)
+                        //equalsTransactionType(requestDto.getTransactionType()),
+                        //equalsCategoryType(requestDto.getCategoryType()),
+                        //equalsAssetType(requestDto.getAssetType()),
+                        //containsDescriptionOrMemo(requestDto.getDescription(), requestDto.getMemo())
+                );
+
+        // Page 객체 생성
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+
     }
 
     @Override
-    public BigDecimal sumAmountByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType) {
-        return jpaQueryFactory
+    public BigDecimal getSumTotalAmountByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType) {
+        BigDecimal result = jpaQueryFactory
                 .select(ledger.amount.sum())
                 .from(ledger)
                 .where(ledger.baseDate.eq(baseDate)
-                        .and(ledger.usersId.eq(usersId))
-                        .and(ledger.transactionType.eq(transactionType)))
+                        .and(equalsUsersId(usersId))
+                        .and(equalsTransactionType(transactionType)))
                 .fetchOne();
+
+        return result;
+    }
+    @Override
+    public BigDecimal getSumTotalAmountWeeklyByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType) {
+        BooleanExpression periodFilter = dateFilterByPeriodType(PeriodType.WEEKLY, baseDate);
+
+        BigDecimal result = jpaQueryFactory
+                .select(ledger.amount.sum())
+                .from(ledger)
+                .where(periodFilter,
+                        equalsTransactionType(transactionType),
+                        equalsUsersId(usersId)
+                )
+                .fetchOne();
+
+        return result;
+    }
+
+    @Override
+    public BigDecimal getSumTotalAmountMonthlyByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType) {
+        BooleanExpression periodFilter = dateFilterByPeriodType(PeriodType.MONTHLY, baseDate);
+
+        BigDecimal result = jpaQueryFactory
+                .select(ledger.amount.sum())
+                .from(ledger)
+                .where(periodFilter,
+                        equalsTransactionType(transactionType),
+                        equalsUsersId(usersId)
+                )
+                .fetchOne();
+
+        return result;
+    }
+
+    //sorting
+    private OrderSpecifier<?>[] getSortOrder(Sort sort) {
+        return sort.stream()
+                .map(order -> {
+                    PathBuilder<?> pathBuilder = new PathBuilder<>(ledger.getType(), ledger.getMetadata());
+                    return new OrderSpecifier(
+                            order.isAscending() ? Order.ASC : Order.DESC,
+                            pathBuilder.get(order.getProperty())
+                    );
+                })
+                .toArray(OrderSpecifier[]::new);
     }
 
     // 기간별 필터
     private BooleanExpression dateBetween(String startDate, String endDate) {
         if (startDate != null && endDate != null) {
             return ledger.baseDate.between(startDate, endDate);
+        }
+        return null;
+    }
+
+    private BooleanExpression dateFilterByPeriodType(PeriodType periodType, String baseDate) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate date = LocalDate.parse(baseDate, formatter);
+
+        switch (periodType) {
+            case WEEKLY:
+                LocalDate startOfWeek = date.with(DayOfWeek.MONDAY); // 주의 시작일 (월요일)
+                LocalDate endOfWeek = date.with(DayOfWeek.SUNDAY);   // 주의 종료일 (일요일)
+                return ledger.baseDate.between(
+                        startOfWeek.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                        endOfWeek.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                );
+            case MONTHLY:
+                LocalDate startOfMonth = date.withDayOfMonth(1);   // 달의 시작일
+                LocalDate endOfMonth = date.withDayOfMonth(date.lengthOfMonth()); // 달의 마지막 날
+                return ledger.baseDate.between(
+                        startOfMonth.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                        endOfMonth.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                );
+            default:
+                throw new IllegalArgumentException("Unsupported period type: " + periodType);
+        }
+    }
+
+    // 사용자 아이디별 필터
+    private BooleanExpression equalsUsersId(Long usersId) {
+        if (usersId != null) {
+            return ledger.usersId.eq(usersId);
         }
         return null;
     }
