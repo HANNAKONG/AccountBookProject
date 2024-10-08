@@ -1,6 +1,7 @@
 package com.hanna.second.springbootprj.ledger.dto;
 
 import com.hanna.second.springbootprj.ledger.domain.Ledger;
+import com.hanna.second.springbootprj.support.Money;
 import com.hanna.second.springbootprj.support.enums.AssetType;
 import com.hanna.second.springbootprj.support.enums.CategoryType;
 import com.hanna.second.springbootprj.support.enums.TransactionType;
