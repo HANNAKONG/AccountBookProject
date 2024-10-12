@@ -1,30 +1,26 @@
 package com.hanna.second.springbootprj.ledger.event;
 
 import com.hanna.second.springbootprj.ledger.domain.Ledger;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.stereotype.Component;
 
-@Component
 public class LedgerEvent {
 
-    public static LedgerSavedEvent ledgerSavedEvent(Object source, Long ledgerId) {
-        return new LedgerSavedEvent(source, ledgerId);
+    public static LedgerSavedEvent ledgerSavedEvent(Long ledgerId) {
+        return new LedgerSavedEvent(ledgerId);
     }
 
-    public static LedgerUpdatedEvent ledgerUpdatedEvent(Object source, Long ledgerId) {
-        return new LedgerUpdatedEvent(source, ledgerId);
+    public static LedgerUpdatedEvent ledgerUpdatedEvent(Long ledgerId) {
+        return new LedgerUpdatedEvent(ledgerId);
     }
 
-    public static LedgerDeletedEvent ledgerDeletedEvent(Object source, Ledger ledger) {
-        return new LedgerDeletedEvent(source, ledger);
+    public static LedgerDeletedEvent ledgerDeletedEvent(Ledger ledger) {
+        return new LedgerDeletedEvent(ledger);
     }
 
     // 등록 후
-    public static class LedgerSavedEvent extends ApplicationEvent {
+    public static class LedgerSavedEvent {
         private final Long ledgerId;
 
-        public LedgerSavedEvent(Object source, Long ledgerId) {
-            super(source);
+        public LedgerSavedEvent(Long ledgerId) {
             this.ledgerId = ledgerId;
         }
 
@@ -34,11 +30,10 @@ public class LedgerEvent {
     }
 
     // 수정 후
-    public static class LedgerUpdatedEvent extends ApplicationEvent {
+    public static class LedgerUpdatedEvent {
         private final Long ledgerId;
 
-        public LedgerUpdatedEvent(Object source, Long ledgerId) {
-            super(source);
+        public LedgerUpdatedEvent(Long ledgerId) {
             this.ledgerId = ledgerId;
         }
 
@@ -48,11 +43,10 @@ public class LedgerEvent {
     }
 
     // 삭제 후
-    public static class LedgerDeletedEvent extends ApplicationEvent {
+    public static class LedgerDeletedEvent {
         private final Ledger entity;
 
-        public LedgerDeletedEvent(Object source, Ledger entity) {
-            super(source);
+        public LedgerDeletedEvent(Ledger entity) {
             this.entity = entity;
         }
 
