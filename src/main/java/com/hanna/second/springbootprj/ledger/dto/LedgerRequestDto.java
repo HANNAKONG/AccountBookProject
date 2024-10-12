@@ -40,9 +40,6 @@ public class LedgerRequestDto {
     /** 메모 */
     private String memo;
 
-    /** 정기거래여부 */
-    private Boolean recurringYn;
-
     /** Users Id */
     private Long usersId;
 
@@ -51,7 +48,7 @@ public class LedgerRequestDto {
      **********************************/
     public LedgerRequestDto() {
     }
-    public LedgerRequestDto(Long id, String startDate, String endDate, String baseDate, TransactionType transactionType, AssetType assetType, CategoryType categoryType, BigDecimal amount, String description, String memo, Boolean recurringYn, Long usersId) {
+    public LedgerRequestDto(Long id, String startDate, String endDate, String baseDate, TransactionType transactionType, AssetType assetType, CategoryType categoryType, BigDecimal amount, String description, String memo, Long usersId) {
         this.id = id;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -62,7 +59,6 @@ public class LedgerRequestDto {
         this.amount = amount;
         this.description = description;
         this.memo = memo;
-        this.recurringYn = recurringYn;
         this.usersId = usersId;
     }
 
@@ -78,7 +74,6 @@ public class LedgerRequestDto {
                 .amount(amount)
                 .description(description)
                 .memo(memo)
-                .recurringYn(recurringYn)
                 .usersId(usersId)
                 .build();
     }
@@ -126,10 +121,6 @@ public class LedgerRequestDto {
         return memo;
     }
 
-    public Boolean getRecurringYn() {
-        return recurringYn;
-    }
-
     public Long getUsersId() {
         return usersId;
     }
@@ -158,8 +149,6 @@ public class LedgerRequestDto {
         private String description;
         /** 메모 */
         private String memo;
-        /** 정기거래여부 */
-        private Boolean recurringYn;
         /** Users Id */
         private Long usersId;
 
@@ -214,18 +203,13 @@ public class LedgerRequestDto {
             return this;
         }
 
-        public Builder recurringYn(Boolean recurringYn) {
-            this.recurringYn = recurringYn;
-            return this;
-        }
-
         public Builder usersId(Long usersId) {
             this.usersId = usersId;
             return this;
         }
 
         public LedgerRequestDto build() {
-            return new LedgerRequestDto(id, startDate, endDate, baseDate, transactionType, assetType, categoryType, amount, description, memo, recurringYn, usersId);
+            return new LedgerRequestDto(id, startDate, endDate, baseDate, transactionType, assetType, categoryType, amount, description, memo, usersId);
         }
 
     }

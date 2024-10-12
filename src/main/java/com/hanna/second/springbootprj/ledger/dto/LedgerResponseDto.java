@@ -34,9 +34,6 @@ public class LedgerResponseDto {
     /** 메모 */
     private String memo;
 
-    /** 정기거래여부 */
-    private Boolean recurringYn;
-
     /** Users Id */
     private Long usersId;
 
@@ -52,6 +49,7 @@ public class LedgerResponseDto {
         this.amount = entity.getAmount();
         this.description = entity.getDescription();
         this.memo = entity.getMemo();
+        this.usersId = entity.getUsersId();
     }
 
     /**********************************
@@ -87,10 +85,6 @@ public class LedgerResponseDto {
 
     public String getMemo() {
         return memo;
-    }
-
-    public Boolean getRecurringYn() {
-        return recurringYn;
     }
 
     public Long getUsersId() {

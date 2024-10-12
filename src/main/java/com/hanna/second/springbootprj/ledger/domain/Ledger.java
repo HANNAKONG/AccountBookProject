@@ -1,6 +1,7 @@
 package com.hanna.second.springbootprj.ledger.domain;
 
 import com.hanna.second.springbootprj.support.BaseTime;
+import com.hanna.second.springbootprj.support.Money;
 import com.hanna.second.springbootprj.support.enums.AssetType;
 import com.hanna.second.springbootprj.support.enums.CategoryType;
 import com.hanna.second.springbootprj.support.enums.TransactionType;
@@ -36,7 +37,6 @@ public class Ledger extends BaseTime {
     private CategoryType categoryType;
 
     /** 금액 */
-    @Column(nullable = false)
     private BigDecimal amount;
     
     /** 내역명 */
@@ -47,10 +47,6 @@ public class Ledger extends BaseTime {
     @Column
     private String memo;
 
-    /** 정기거래여부 */
-    @Column
-    private Boolean recurringYn;
-
     /** Users Id */
     private Long usersId;
 
@@ -59,7 +55,7 @@ public class Ledger extends BaseTime {
      **********************************/
     public Ledger() {
     }
-    public Ledger(Long id, String baseDate, TransactionType transactionType, AssetType assetType, CategoryType categoryType, BigDecimal amount, String description, String memo, Boolean recurringYn, Long usersId) {
+    public Ledger(Long id, String baseDate, TransactionType transactionType, AssetType assetType, CategoryType categoryType, BigDecimal amount, String description, String memo, Long usersId) {
         this.id = id;
         this.baseDate = baseDate;
         this.transactionType = transactionType;
@@ -68,7 +64,6 @@ public class Ledger extends BaseTime {
         this.amount = amount;
         this.description = description;
         this.memo = memo;
-        this.recurringYn = recurringYn;
         this.usersId = usersId;
     }
 
@@ -134,10 +129,6 @@ public class Ledger extends BaseTime {
         return memo;
     }
 
-    public Boolean getRecurringYn() {
-        return recurringYn;
-    }
-
     public Long getUsersId() {
         return usersId;
     }
@@ -162,8 +153,6 @@ public class Ledger extends BaseTime {
         private String description;
         /** 메모 */
         private String memo;
-        /** 정기거래여부 */
-        private Boolean recurringYn;
         /** Users Id */
         private Long usersId;
 
@@ -208,18 +197,13 @@ public class Ledger extends BaseTime {
             return this;
         }
 
-        public Builder recurringYn(Boolean recurringYn) {
-            this.recurringYn = recurringYn;
-            return this;
-        }
-
         public Builder usersId(Long usersId) {
             this.usersId = usersId;
             return this;
         }
 
         public Ledger build() {
-            return new Ledger(id, baseDate, transactionType, assetType, categoryType, amount, description, memo, recurringYn, usersId);
+            return new Ledger(id, baseDate, transactionType, assetType, categoryType, amount, description, memo, usersId);
         }
 
     }
