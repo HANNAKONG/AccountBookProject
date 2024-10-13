@@ -1,20 +1,16 @@
 package com.hanna.second.springbootprj.ledger.domain;
 
 import com.hanna.second.springbootprj.ledger.dto.LedgerRequestDto;
-import com.hanna.second.springbootprj.support.Money;
 import com.hanna.second.springbootprj.support.enums.AssetType;
 import com.hanna.second.springbootprj.support.enums.CategoryType;
 import com.hanna.second.springbootprj.support.enums.PeriodType;
 import com.hanna.second.springbootprj.support.enums.TransactionType;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,25 +24,26 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Repository
-public class LedgerRepositoryImpl implements LedgerRepositoryCustom {
+public class LedgerRepositoryCustomImpl implements LedgerRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
     private final QLedger ledger = QLedger.ledger;
 
-    public LedgerRepositoryImpl(JPAQueryFactory jpaQueryFactory) {
+    public LedgerRepositoryCustomImpl(JPAQueryFactory jpaQueryFactory) {
         this.jpaQueryFactory = jpaQueryFactory;
     }
 
     @Override
-    public Page<Ledger> findCustomCriteria(LedgerRequestDto requestDto, Pageable pageable) {
+    public Page<Ledger> findAllByFilter(LedgerRequestDto requestDto, Pageable pageable) {
         // Ledger 쿼리 실행
         List<Ledger> content = jpaQueryFactory.selectFrom(ledger)
                 .where(
-                        //dateBetween(startDate, endDate)
-                        //equalsTransactionType(requestDto.getTransactionType()),
-                        //equalsCategoryType(requestDto.getCategoryType()),
-                        //equalsAssetType(requestDto.getAssetType()),
-                        //containsDescriptionOrMemo(requestDto.getDescription(), requestDto.getMemo())
+                        dateBetween(requestDto.getStartDate(), requestDto.getEndDate()),
+                        equalsTransactionType(requestDto.getTransactionType()),
+                        equalsCategoryType(requestDto.getCategoryType()),
+                        equalsAssetType(requestDto.getAssetType()),
+                        equalsUsersId(requestDto.getUsersId()),
+                        containsDescriptionOrMemo(requestDto.getDescription(), requestDto.getMemo())
                 )
                 .orderBy(getSortOrder(pageable.getSort()))  // 정렬 처리
                 .offset(pageable.getOffset())  // 페이징 시작 위치
@@ -58,20 +55,59 @@ public class LedgerRepositoryImpl implements LedgerRepositoryCustom {
                 .select(ledger.count())
                 .from(ledger)
                 .where(
-                        //dateBetween(startDate, endDate)
-                        //equalsTransactionType(requestDto.getTransactionType()),
-                        //equalsCategoryType(requestDto.getCategoryType()),
-                        //equalsAssetType(requestDto.getAssetType()),
-                        //containsDescriptionOrMemo(requestDto.getDescription(), requestDto.getMemo())
+                        dateBetween(requestDto.getStartDate(), requestDto.getEndDate()),
+                        equalsTransactionType(requestDto.getTransactionType()),
+                        equalsCategoryType(requestDto.getCategoryType()),
+                        equalsAssetType(requestDto.getAssetType()),
+                        equalsUsersId(requestDto.getUsersId()),
+                        containsDescriptionOrMemo(requestDto.getDescription(), requestDto.getMemo())
                 );
 
         // Page 객체 생성
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
 
     }
-
     @Override
-    public BigDecimal getSumTotalAmountByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType) {
+    public List<Ledger> findCategoryAndAmount(String baseDate, Long usersId, TransactionType transactionType) {
+        List<Ledger> result = jpaQueryFactory
+                .selectFrom(ledger)
+                .where(ledger.baseDate.eq(baseDate)
+                        .and(equalsUsersId(usersId))
+                        .and(equalsTransactionType(transactionType)))
+                .fetch();
+
+        return result;
+    }
+    @Override
+    public List<Ledger> findWeeklyCategoryAndAmount(String baseDate, Long usersId, TransactionType transactionType) {
+        BooleanExpression periodFilter = dateFilterByPeriodType(PeriodType.WEEKLY, baseDate);
+
+        List<Ledger> result = jpaQueryFactory
+                .selectFrom(ledger)
+                .where(periodFilter,
+                        equalsTransactionType(transactionType),
+                        equalsUsersId(usersId)
+                )
+                .fetch();
+        System.out.println("------------>findWeeklyCategoryAndAmount--->"+result.toString());
+        return result;
+    }
+    @Override
+    public List<Ledger> findMonthlyCategoryAndAmount(String baseDate, Long usersId, TransactionType transactionType) {
+        BooleanExpression periodFilter = dateFilterByPeriodType(PeriodType.MONTHLY, baseDate);
+
+        List<Ledger> result = jpaQueryFactory
+                .selectFrom(ledger)
+                .where(periodFilter,
+                        equalsTransactionType(transactionType),
+                        equalsUsersId(usersId)
+                )
+                .fetch();
+
+        return result;
+    }
+    @Override
+    public BigDecimal findAmountSum(String baseDate, Long usersId, TransactionType transactionType) {
         BigDecimal result = jpaQueryFactory
                 .select(ledger.amount.sum())
                 .from(ledger)
@@ -83,7 +119,7 @@ public class LedgerRepositoryImpl implements LedgerRepositoryCustom {
         return result;
     }
     @Override
-    public BigDecimal getSumTotalAmountWeeklyByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType) {
+    public BigDecimal findWeeklyAmountSum(String baseDate, Long usersId, TransactionType transactionType) {
         BooleanExpression periodFilter = dateFilterByPeriodType(PeriodType.WEEKLY, baseDate);
 
         BigDecimal result = jpaQueryFactory
@@ -99,7 +135,7 @@ public class LedgerRepositoryImpl implements LedgerRepositoryCustom {
     }
 
     @Override
-    public BigDecimal getSumTotalAmountMonthlyByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType) {
+    public BigDecimal findMonthlyAmountSum(String baseDate, Long usersId, TransactionType transactionType) {
         BooleanExpression periodFilter = dateFilterByPeriodType(PeriodType.MONTHLY, baseDate);
 
         BigDecimal result = jpaQueryFactory

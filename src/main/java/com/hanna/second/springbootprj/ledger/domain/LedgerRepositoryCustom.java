@@ -12,9 +12,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LedgerRepositoryCustom {
-    Page<Ledger> findCustomCriteria(LedgerRequestDto requestDto, Pageable pageable);
-    BigDecimal getSumTotalAmountByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType);
-    BigDecimal getSumTotalAmountWeeklyByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType);
-    BigDecimal getSumTotalAmountMonthlyByBaseDateAndUsersIdAndTransactionType(String baseDate, Long usersId, TransactionType transactionType);
+    Page<Ledger> findAllByFilter(LedgerRequestDto requestDto, Pageable pageable);
+    List<Ledger> findCategoryAndAmount(String baseDate, Long usersId, TransactionType transactionType);
+    List<Ledger> findWeeklyCategoryAndAmount(String baseDate, Long usersId, TransactionType transactionType);
+    List<Ledger> findMonthlyCategoryAndAmount(String baseDate, Long usersId, TransactionType transactionType);
+    BigDecimal findAmountSum(String baseDate, Long usersId, TransactionType transactionType);
+    BigDecimal findWeeklyAmountSum(String baseDate, Long usersId, TransactionType transactionType);
+    BigDecimal findMonthlyAmountSum(String baseDate, Long usersId, TransactionType transactionType);
 
 }
