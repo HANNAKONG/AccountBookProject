@@ -35,7 +35,7 @@ public class BudgetService {
      **********************************/
     @Transactional
     public void saveOrUpdateBudget(final BudgetRequestDto requestDto){
-        // 카테고리별 지출금액 변환 (Json -> ObjectNode) null처리 해야겠군
+        // 카테고리별 지출금액 변환 (Json -> ObjectNode)
         ObjectNode objectNodeData = objectConverter.convertJsonToObjectNode(requestDto.getCategoryExpenseAmount());
 
         // 카테고리 지출 금액이 없을 경우: 미지정 카테고리에 금액 추가
