@@ -3,7 +3,6 @@ package com.hanna.second.springbootprj.statistics.controller;
 import com.hanna.second.springbootprj.statistics.dto.StatisticsRequestDto;
 import com.hanna.second.springbootprj.statistics.dto.StatisticsResponseDto;
 import com.hanna.second.springbootprj.statistics.service.StatisticsService;
-import com.hanna.second.springbootprj.support.enums.CategoryType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,17 +20,9 @@ public class StatisticsApiController {
     /**********************************
      *  1-1. 통계 조회: 기간별 지출금액
      **********************************/
-    @GetMapping("/expensebyperiod")
+    @GetMapping("/expense-by-period")
     public StatisticsResponseDto getExpenseByPeriod(@RequestBody StatisticsRequestDto requestDto){
         return statisticsService.getExpenseByPeriod(requestDto);
-    }
-
-    /**********************************
-     *  1-2. 통계 조회: 카테고리별 지출금액
-     **********************************/
-    @GetMapping("/expensebycategory")
-    public StatisticsResponseDto getExpenseByCategory(@RequestBody StatisticsRequestDto requestDto, CategoryType categoryType){
-        return statisticsService.getExpenseByCategory(requestDto, categoryType);
     }
 
     /**********************************
