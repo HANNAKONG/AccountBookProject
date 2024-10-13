@@ -1,6 +1,7 @@
 package com.hanna.second.springbootprj.statistics.dto;
 
 import com.hanna.second.springbootprj.statistics.domain.Statistics;
+import com.hanna.second.springbootprj.support.Money;
 import com.hanna.second.springbootprj.support.enums.PeriodType;
 
 import java.math.BigDecimal;
