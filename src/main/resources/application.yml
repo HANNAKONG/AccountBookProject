@@ -10,10 +10,14 @@ spring:
 
   # JPA
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: update
-      format_sql: trueD
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    #defer-datasource-initialization: true
 
   # H2
   h2:
@@ -27,3 +31,17 @@ spring:
       org.springframework.security: DEBUG
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+      org.hibernate.type.descriptor.sql.BasicTypeDescriptor: TRACE
+      org.springframework.data: DEBUG
+
+  # Batch
+  batch:
+    #jdbc:
+      #initialize-schema: always
+    job:
+      enabled: false
+
+  # Batch Test
+  task:
+    scheduling:
+      enabled: false

@@ -63,6 +63,11 @@ dependencies {
     annotationProcessor "javax.annotation:javax.annotation-api"
     annotationProcessor "javax.persistence:javax.persistence-api"
 
+    //Spring Batch 의존성
+    implementation('org.springframework.boot:spring-boot-starter-batch')
+
+    implementation 'org.apache.commons:commons-text:1.10.0'
+
 
 }
 
