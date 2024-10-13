@@ -13,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,12 +26,10 @@ public class LedgerService {
 //    }
 
     private final LedgerJpaRepository ledgerRepository;
-    private final LedgerEvent ledgerEvent;
     private final ApplicationEventPublisher eventPublisher;
 
-    public LedgerService(final LedgerJpaRepository ledgerRepository, final LedgerEvent ledgerEvent, ApplicationEventPublisher eventPublisher) {
+    public LedgerService(final LedgerJpaRepository ledgerRepository, ApplicationEventPublisher eventPublisher) {
         this.ledgerRepository = ledgerRepository;
-        this.ledgerEvent = ledgerEvent;
         this.eventPublisher = eventPublisher;
     }
 
@@ -47,20 +44,12 @@ public class LedgerService {
         Sort sortInfo = Sort.by(Sort.Direction.DESC, "baseDate", "id");
         Pageable pageable = PageRequest.of(0, 10, sortInfo);
 
-        try {
-            System.out.println("requestDto.getStartDate()====> "+requestDto.getStartDate());
-            System.out.println("requestDto.getEndDate()====> "+requestDto.getEndDate());
-            Page<Ledger> entityLedgerList = ledgerRepository.findCustomCriteria(requestDto, pageable);
-            System.out.println("entityLedgerList--> " + entityLedgerList);
+        Page<Ledger> entityLedgerList = ledgerRepository.findAllByFilter(requestDto, pageable);
 
-            return entityLedgerList.stream()
-                    .map(LedgerResponseDto::new)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            System.err.println("Error occurred while fetching ledger list: " + e.getMessage());
-            e.printStackTrace(); // 예외 발생 시 스택 트레이스 출력
-            return Collections.emptyList(); // 오류가 발생하면 빈 리스트 반환
-        }
+        return entityLedgerList.stream()
+                .map(LedgerResponseDto::new)
+                .collect(Collectors.toList());
+
     }
 
 
@@ -83,7 +72,7 @@ public class LedgerService {
         final Ledger entity = requestDto.toEntity();
         ledgerRepository.save(entity);
 
-        eventPublisher.publishEvent(ledgerEvent.ledgerSavedEvent(this, entity.getId()));
+        eventPublisher.publishEvent(LedgerEvent.ledgerSavedEvent(entity.getId()));
     }
 
     /**********************************
@@ -104,7 +93,7 @@ public class LedgerService {
                         requestDto.getMemo()
                     );
 
-        eventPublisher.publishEvent(ledgerEvent.ledgerUpdatedEvent(this, entity.getId()));
+        eventPublisher.publishEvent(LedgerEvent.ledgerUpdatedEvent(entity.getId()));
     }
 
     /**********************************
@@ -117,6 +106,10 @@ public class LedgerService {
         );
         ledgerRepository.delete(entity);
 
-        eventPublisher.publishEvent(ledgerEvent.ledgerDeletedEvent(this, entity));
+        ledgerRepository.flush();
+
+        System.out.println("delete===============>"+entity.getAmount());
+
+        eventPublisher.publishEvent(LedgerEvent.ledgerDeletedEvent(entity));
     }
 }
