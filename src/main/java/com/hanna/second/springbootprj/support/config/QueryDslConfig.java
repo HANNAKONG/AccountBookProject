@@ -1,4 +1,4 @@
-package com.hanna.second.springbootprj.support;
+package com.hanna.second.springbootprj.support.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.context.annotation.Bean;
