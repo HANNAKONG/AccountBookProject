@@ -5,91 +5,110 @@ buildscript{
     }
     repositories {
         mavenCentral()
-        //jcenter()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        //classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
     }
 }
 
-// 코드2: 플러그인 의존성들을 적용할 것인지 결정
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
+plugins {
+    id 'java-library'
+}
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
+//하위 모든 프로젝트 공통 세팅
+subprojects {
+    // 코드2: 플러그인 의존성들을 적용할 것인지 결정
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    //코드3: 의존성들을 어떤 원격 저장소에서 받을지 정함 + 의존성 선언
+    repositories{
+        mavenCentral()
+    }
+
+    dependencies {
+        // Spring Boot의 기본 스타터 의존성
+        implementation('org.springframework.boot:spring-boot-starter')
+        implementation('org.springframework.boot:spring-boot-starter-web')
+
+        // 테스트 의존성
+        testImplementation('org.springframework.boot:spring-boot-starter-test') {
+            exclude group: 'org.junit.vintage', module: 'junit-vintage-engine' //JUnit5로 실행하기 위해 추가
+        }
+
+        // JPA 의존성
+        implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+        implementation('com.h2database:h2')
+
+        // Spring Security 의존성
+        //implementation 'org.springframework.boot:spring-boot-starter-security'
+
+        // JWT 의존성
+        //implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+        //runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+        //runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // 또는 jjwt-gson
+
+        // validation 의존성
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+        // QueryDSL 의존성
+        implementation "com.querydsl:querydsl-jpa"
+        implementation "com.querydsl:querydsl-core"
+        implementation "com.querydsl:querydsl-collections"
+        annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
+        annotationProcessor "javax.annotation:javax.annotation-api"
+        annotationProcessor "javax.persistence:javax.persistence-api"
+
+        //Spring Batch 의존성
+        implementation('org.springframework.boot:spring-boot-starter-batch')
+
+        implementation 'org.apache.commons:commons-text:1.10.0'
+
+
+    }
+
+    // Querydsl 설정부
+    def generated = 'src/main/generated'
+
+    // querydsl QClass 파일 생성 위치를 지정
+    tasks.withType(JavaCompile) {
+        options.getGeneratedSourceOutputDirectory().set(file(generated))
+    }
+
+    // java source set 에 querydsl QClass 위치 추가
+    sourceSets {
+        main.java.srcDirs += [ generated ]
+    }
+
+    // gradle clean 시에 QClass 디렉토리 삭제
+    clean {
+        delete file(generated)
+    }
+
+
+    test {
+        useJUnitPlatform()
     }
 }
 
-//코드3: 의존성들을 어떤 원격 저장소에서 받을지 정함 + 의존성 선언
-repositories{
-    mavenCentral()
-    //jcenter()
-}
-
-dependencies {
-    // Spring Boot의 기본 스타터 의존성
-    implementation('org.springframework.boot:spring-boot-starter')
-    implementation('org.springframework.boot:spring-boot-starter-web')
-
-    // 테스트 의존성
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine' //JUnit5로 실행하기 위해 추가
+project(':module-api'){
+    dependencies {
+        //implementation project(':module-common')
     }
-
-    // JPA 의존성
-    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    implementation('com.h2database:h2')
-
-    // Spring Security 의존성
-    //implementation 'org.springframework.boot:spring-boot-starter-security'
-
-    // JWT 의존성
-    //implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    //runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-    //runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // 또는 jjwt-gson
-
-    // validation 의존성
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-    // QueryDSL 의존성
-    implementation "com.querydsl:querydsl-jpa"
-    implementation "com.querydsl:querydsl-core"
-    implementation "com.querydsl:querydsl-collections"
-    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
-    annotationProcessor "javax.annotation:javax.annotation-api"
-    annotationProcessor "javax.persistence:javax.persistence-api"
-
-    //Spring Batch 의존성
-    implementation('org.springframework.boot:spring-boot-starter-batch')
-
-    implementation 'org.apache.commons:commons-text:1.10.0'
-
-
 }
 
-// Querydsl 설정부
-def generated = 'src/main/generated'
-
-// querydsl QClass 파일 생성 위치를 지정
-tasks.withType(JavaCompile) {
-    options.getGeneratedSourceOutputDirectory().set(file(generated))
+project(':module-batch'){
+    dependencies {
+        implementation project(':module-api')
+    }
 }
 
-// java source set 에 querydsl QClass 위치 추가
-sourceSets {
-    main.java.srcDirs += [ generated ]
-}
-
-// gradle clean 시에 QClass 디렉토리 삭제
-clean {
-    delete file(generated)
-}
-
-
-test {
-    useJUnitPlatform()
-}
