@@ -1,0 +1,16 @@
+
+server:
+  port: 8081
+
+spring:
+  # Batch
+  batch:
+    #jdbc:
+    #initialize-schema: always
+    job:
+      enabled: false
+
+  # Batch Test
+  task:
+    scheduling:
+      enabled: false
